@@ -1,9 +1,38 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { calculateStepByStep } from "../../../utils/mathEngine.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+type ChatMessage = {
+  role: string;
+  content?: string;
+};
+
+const isMathLikeQuestion = (content: string) => {
+  const normalized = content.replace(/،/g, ",").trim();
+  const numberLike = /\d/.test(normalized);
+  const operatorLike = /[+\-*/%^]/.test(normalized);
+  const keywords = /(مسألة|حل|خطوات|ناتج|احسب|اجمع|اطرح|اضرب|اقسم|كم)/i;
+  return Boolean((numberLike && operatorLike) || keywords.test(normalized));
+};
+
+const extractMathExpression = (content: string) => {
+  const expressionMatches = content.match(/[0-9+\-*/%^().\s]+/g);
+  if (expressionMatches && expressionMatches.length > 0) {
+    const joined = expressionMatches.join(" ").replace(/\s+/g, " ").trim();
+    if (joined) return joined;
+  }
+  return content;
+};
+
+const respondWithJson = (payload: Record<string, unknown>, status = 200) =>
+  new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -12,6 +41,10 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
+
+    if (!Array.isArray(messages)) {
+      return respondWithJson({ error: "تنسيق الرسائل غير صحيح" }, 400);
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
     if (!LOVABLE_API_KEY) {
@@ -19,6 +52,17 @@ serve(async (req) => {
     }
 
     console.log("Received chat request with", messages.length, "messages");
+
+    const latestUserMessage: ChatMessage | undefined = [...messages].reverse().find((msg: ChatMessage) => msg.role === "user");
+
+    if (latestUserMessage?.content && isMathLikeQuestion(latestUserMessage.content)) {
+      console.log("Math query detected. Using Math Engine for:", latestUserMessage.content);
+      const mathResult = calculateStepByStep({ expression: extractMathExpression(latestUserMessage.content) });
+      if (mathResult) {
+        return respondWithJson({ type: "math-result", ...mathResult });
+      }
+      return respondWithJson({ type: "math-clarification", message: "المسألة غير واضحة" });
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -31,22 +75,12 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `أنت مساعد تعليمي ذكي في مدارس حروف الأهلية. دورك هو مساعدة الطلاب والمعلمين في:
-
-1. شرح المفاهيم التعليمية بطريقة واضحة ومبسطة
-2. حل المسائل الرياضية والعلمية مع شرح الخطوات
-3. تقديم إجابات على أسئلة المناهج الدراسية العراقية
-4. مساعدة الطلاب في الواجبات المنزلية
-5. تقديم نصائح دراسية وتعليمية
-
-تتحدث العربية الفصحى بشكل أساسي. كن صبوراً ومشجعاً وداعماً للطلاب. إذا كان السؤال خارج نطاق التعليم، وجّه الطالب بلطف للتركيز على الدراسة.
-
-عند شرح المسائل:
-- ابدأ بشرح المفهوم الأساسي
-- قسّم الحل إلى خطوات واضحة
-- اشرح سبب كل خطوة
-- تحقق من فهم الطالب في كل مرحلة
-- قدم أمثلة إضافية إذا لزم الأمر`
+            content:
+              "عند حل المسائل الرياضية يجب الالتزام بالقواعد التالية: – لا تستنتج أرقام غير موجودة في السؤال.\n" +
+              "– لا تنشئ خطوات غير ضرورية.\n" +
+              "– إذا لم تكن المعطيات كافية، قل: (المسألة غير واضحة).\n" +
+              "– استخدم فقط المعلومات التي ذكرها الطالب.\n" +
+              "– العمليات الحسابية يتم تنفيذها بواسطة Math Engine وليس بواسطة النموذج."
           },
           ...messages,
         ],

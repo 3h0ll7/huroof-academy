@@ -8,10 +8,30 @@ export type Attachment = {
   excerpt?: string;
 };
 
+export type MathStep = {
+  expression: string;
+  operation: string;
+  result: number;
+  description: string;
+};
+
+export type MathResultPayload = {
+  expression: string;
+  result: number;
+  formattedResult: string;
+  steps: MathStep[];
+};
+
 export type Message = {
   role: "user" | "assistant";
   content: string;
   attachments?: Attachment[];
+  mathResult?: MathResultPayload;
+};
+
+type StreamResult = {
+  mathResult?: MathResultPayload;
+  clarification?: string;
 };
 
 export async function streamChat({
@@ -24,7 +44,7 @@ export async function streamChat({
   onDelta: (deltaText: string) => void;
   onDone: () => void;
   onError?: (error: Error) => void;
-}) {
+}): Promise<StreamResult | undefined> {
   try {
     const resp = await fetch(CHAT_URL, {
       method: "POST",
@@ -34,6 +54,21 @@ export async function streamChat({
       },
       body: JSON.stringify({ messages }),
     });
+
+    const contentType = resp.headers.get("content-type") ?? "";
+
+    if (contentType.includes("application/json")) {
+      const payload = await resp.json().catch(() => ({ error: "حدث خطأ في الاتصال" }));
+
+      if (!resp.ok || payload.error) {
+        throw new Error(payload.error || `خطأ: ${resp.status}`);
+      }
+
+      const mathResult = payload.type === "math-result" ? payload : undefined;
+      const clarification = payload.type === "math-clarification" ? payload.message : undefined;
+      onDone();
+      return { mathResult, clarification };
+    }
 
     if (!resp.ok) {
       const errorData = await resp.json().catch(() => ({ error: "حدث خطأ في الاتصال" }));
