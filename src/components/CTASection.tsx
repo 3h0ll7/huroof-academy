@@ -1,10 +1,11 @@
 import { motion } from "@/lib/framer-motion-lite";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Calendar, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
+import { Phone, MessageCircle, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
 import { PhoneLink } from "@/components/PhoneLink";
+import { GoogleMapSection } from "@/components/GoogleMapSection";
 
 const CTASection = () => {
   const { language, isRTL } = useLanguage();
@@ -19,11 +20,6 @@ const CTASection = () => {
       icon: MessageCircle,
       label: { ar: "رسالة واتساب", en: "WhatsApp" },
       details: "07833446666",
-    },
-    {
-      icon: Calendar,
-      label: { ar: "احجز جولة", en: "Book a tour" },
-      details: "07733334452",
     },
   ];
 
@@ -52,7 +48,7 @@ const CTASection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {cards.map((card, index) => (
             <motion.div key={card.details} initial={{ opacity: 0, transform: 'translateY(20px)' }} whileInView={{ opacity: 1, transform: 'translateY(0)' }} transition={{ delay: index * 0.1 }}>
               <Card className="border-white/20 bg-white/10 text-white">
@@ -98,6 +94,8 @@ const CTASection = () => {
             </Button>
           </div>
         </div>
+
+        <GoogleMapSection />
       </div>
     </section>
   );

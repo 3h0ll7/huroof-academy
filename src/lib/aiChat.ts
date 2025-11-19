@@ -1,8 +1,16 @@
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
-export type Message = { 
-  role: "user" | "assistant"; 
+export type Attachment = {
+  type: "image";
+  dataUrl: string;
+  mimeType: string;
+  name?: string;
+};
+
+export type Message = {
+  role: "user" | "assistant";
   content: string;
+  attachments?: Attachment[];
 };
 
 export async function streamChat({

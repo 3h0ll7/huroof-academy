@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/huroof-logo.jpg";
-import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/context/LanguageContext";
 import { PhoneLink } from "@/components/PhoneLink";
@@ -27,7 +26,6 @@ const Chat = () => {
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            <LanguageToggle />
             <ThemeToggle />
             <Link to="/">
               <Button variant="outline" dir={isRTL ? "rtl" : "ltr"}>

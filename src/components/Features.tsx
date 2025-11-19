@@ -1,5 +1,5 @@
 import { motion } from "@/lib/framer-motion-lite";
-import { Brain, FileEdit, FileText, BarChart3, Shield, Heart, Lightbulb } from "lucide-react";
+import { Brain, FileEdit, FileText, BarChart3, Shield, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 const featureList = [
@@ -47,15 +47,6 @@ const featureList = [
       en: "Smart entry gates, live attendance, and AI-assisted response playbooks.",
     },
     gradient: "from-primary via-navy-light to-secondary",
-  },
-  {
-    icon: Heart,
-    title: { ar: "رعاية شاملة", en: "Whole Care" },
-    description: {
-      ar: "برامج صحة نفسية، نوادي فنون، ودعم اجتماعي يقوده المرشد الافتراضي.",
-      en: "Mental wellbeing tracks, arts clubs, and social support guided by our virtual mentor.",
-    },
-    gradient: "from-secondary via-orange-light to-primary",
   },
   {
     icon: Lightbulb,
