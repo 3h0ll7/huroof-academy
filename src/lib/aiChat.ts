@@ -1,10 +1,11 @@
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
 export type Attachment = {
-  type: "image";
-  dataUrl: string;
+  type: "image" | "document";
+  dataUrl?: string;
   mimeType: string;
   name?: string;
+  excerpt?: string;
 };
 
 export type Message = {

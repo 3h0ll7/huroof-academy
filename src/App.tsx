@@ -7,8 +7,13 @@ import Index from "./pages/Index";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
 import { AppProviders } from "./providers/AppProviders";
 import { AIAssistantWidget } from "./components/AIAssistantWidget";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +28,17 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/auth/sign-in" element={<SignIn />} />
+            <Route path="/auth/sign-up" element={<SignUp />} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
