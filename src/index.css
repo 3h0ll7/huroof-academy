@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -117,11 +119,36 @@ All colors MUST be HSL.
 }
 
 @layer base {
+  html {
+    font-family: "IBM Plex Sans Arabic", "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    scroll-behavior: smooth;
+  }
+
   * {
-    @apply border-border;
+    @apply border-border outline-offset-2;
+  }
+
+  *:focus-visible {
+    @apply ring-2 ring-offset-2 ring-offset-background ring-secondary;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+    font-feature-settings: "cv11", "ss01";
+    background-image: radial-gradient(circle at top, hsla(var(--secondary) / 0.08), transparent 45%),
+      radial-gradient(circle at bottom, hsla(var(--primary) / 0.1), transparent 55%);
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  ::selection {
+    background-color: hsla(var(--secondary) / 0.3);
+    color: hsl(var(--secondary-foreground));
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }
