@@ -14,9 +14,8 @@ const LanguageContext = createContext<LanguageContextValue | undefined>(undefine
 const getInitialLanguage = (): SupportedLanguage => {
   if (typeof window === "undefined") return "ar";
   const stored = window.localStorage.getItem("huroof-lang") as SupportedLanguage | null;
-  if (stored) return stored;
-  const browser = window.navigator.language?.toLowerCase() ?? "ar";
-  return browser.startsWith("ar") ? "ar" : "en";
+  if (stored === "ar" || stored === "en") return stored;
+  return "ar";
 };
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {

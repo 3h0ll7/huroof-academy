@@ -126,12 +126,12 @@ const Hero = () => {
               />
             </div>
             <p className="text-lg font-semibold">
-              {language === "ar" ? "مدرسة عربية ثنائية اللغة" : "A bilingual Arabic-first campus"}
+              {language === "ar" ? "مجتمع تعلم عربي مبتكر" : "An Arabic-first creative community"}
             </p>
             <p className="text-sm text-white/70">
               {language === "ar"
-                ? "بوابات رقمية للأهل والمعلمين، فصول STEM، ومختبرات روبوتات"
-                : "Digital portals, STEM studios, and robotics labs"}
+                ? "بوابات تفاعلية للأهل والمعلمين، فصول ابتكار، ومختبرات ذكية"
+                : "Interactive family portals, creative labs, and AI-powered studios"}
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3 text-sm">
               {stats.map((stat) => (
