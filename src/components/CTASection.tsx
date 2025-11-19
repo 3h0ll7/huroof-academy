@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Phone, MessageCircle, Calendar, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -63,14 +64,16 @@ const CTASection = () => {
 
           {/* Primary CTA Button */}
           <div className="pt-8">
-            <Button 
-              size="lg" 
-              className="bg-secondary hover:bg-secondary/90 text-white font-bold text-xl px-12 py-7 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110"
-              dir="rtl"
-            >
-              <ArrowLeft className="ml-3 h-6 w-6" />
-              ابدأ مع حروف AI الآن
-            </Button>
+            <Link to="/chat">
+              <Button 
+                size="lg" 
+                className="bg-secondary hover:bg-secondary/90 text-white font-bold text-xl px-12 py-7 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110"
+                dir="rtl"
+              >
+                <ArrowLeft className="ml-3 h-6 w-6" />
+                ابدأ مع حروف AI الآن
+              </Button>
+            </Link>
           </div>
 
           {/* Location */}

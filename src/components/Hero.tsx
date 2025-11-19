@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/huroof-logo.jpg";
 
 const Hero = () => {
@@ -49,14 +50,16 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 pt-8">
-            <Button 
-              size="lg" 
-              className="bg-secondary hover:bg-secondary/90 text-white font-bold text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              dir="rtl"
-            >
-              <ArrowLeft className="ml-2 h-5 w-5" />
-              جرب حروف الذكي
-            </Button>
+            <Link to="/chat">
+              <Button 
+                size="lg" 
+                className="bg-secondary hover:bg-secondary/90 text-white font-bold text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                dir="rtl"
+              >
+                <ArrowLeft className="ml-2 h-5 w-5" />
+                جرب حروف الذكي
+              </Button>
+            </Link>
             <Button 
               size="lg" 
               variant="outline" 
