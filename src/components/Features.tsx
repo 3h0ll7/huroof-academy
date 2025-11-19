@@ -25,8 +25,8 @@ const featureList = [
     icon: FileText,
     title: { ar: "ملخص النصوص", en: "Smart Summaries" },
     description: {
-      ar: "يلخص الفصول الطويلة إلى نقاط رئيسية مدعومة بمفاهيم STEM ومصادر جاهزة للطباعة.",
-      en: "Condenses long chapters into key ideas with STEM-ready prompts and printable sheets.",
+      ar: "يلخص الفصول الطويلة إلى نقاط رئيسية مدعومة بمفاهيم العلوم والتقنية ومصادر جاهزة للطباعة.",
+      en: "Condenses long chapters into key ideas with science-ready prompts and printable sheets.",
     },
     gradient: "from-navy-deep to-primary",
   },
@@ -61,8 +61,8 @@ const featureList = [
     icon: Lightbulb,
     title: { ar: "تعليم مبتكر", en: "Innovative Learning" },
     description: {
-      ar: "منهج STEAM، طابعات ثلاثية الأبعاد، ومسابقات روبوتات تعزز التفكير الابتكاري.",
-      en: "STEAM curriculum, 3D printing labs, and robotics leagues fueling creative thinking.",
+      ar: "منهج متكامل للعلوم والفنون، طابعات ثلاثية الأبعاد، ومسابقات ابتكار تعزز التفكير الخلاق.",
+      en: "Integrated science-and-arts curriculum, 3D printing labs, and innovation leagues fueling creative thinking.",
     },
     gradient: "from-navy-deep via-primary to-secondary",
   },

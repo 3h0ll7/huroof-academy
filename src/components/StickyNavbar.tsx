@@ -1,17 +1,11 @@
 import { motion } from "@/lib/framer-motion-lite";
-import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/context/LanguageContext";
-import { Phone } from "lucide-react";
+import { Phone, Settings2 } from "lucide-react";
 import { PhoneLink } from "@/components/PhoneLink";
-import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
-interface StickyNavbarProps {
-  sections: { id: string; label: { ar: string; en: string } }[];
-  activeSection: string;
-}
-
-export const StickyNavbar = ({ sections, activeSection }: StickyNavbarProps) => {
+export const StickyNavbar = () => {
   const { language, isRTL } = useLanguage();
 
   return (
@@ -21,7 +15,7 @@ export const StickyNavbar = ({ sections, activeSection }: StickyNavbarProps) => 
       transition={{ duration: 0.6 }}
       className="sticky top-0 z-30 backdrop-blur-lg bg-background/80 border-b border-white/10"
     >
-      <nav className="container mx-auto flex flex-wrap items-center justify-between gap-4 py-4">
+      <nav className="container mx-auto flex flex-wrap items-center justify-between gap-4 py-4" dir={isRTL ? "rtl" : "ltr"}>
         <div className="flex items-center gap-3">
           <div className="relative">
             <span className="absolute inset-0 rounded-full bg-secondary/20 blur-xl" aria-hidden />
@@ -37,33 +31,14 @@ export const StickyNavbar = ({ sections, activeSection }: StickyNavbarProps) => 
           </div>
         </div>
 
-        <ul
-          className={cn("flex flex-1 flex-wrap items-center gap-2 text-sm font-semibold", isRTL && "flex-row-reverse")}
-          aria-label={language === "ar" ? "التنقل بين أقسام الصفحة" : "Navigate sections"}
-          dir={isRTL ? "rtl" : "ltr"}
-        >
-          {sections.map((section) => (
-            <li key={section.id}>
-              <a
-                href={`#${section.id}`}
-                className={cn(
-                  "rounded-full px-4 py-2 transition-all",
-                  "hover:bg-secondary/10",
-                  activeSection === section.id
-                    ? "bg-secondary text-secondary-foreground shadow"
-                    : "text-muted-foreground",
-                )}
-                aria-current={activeSection === section.id ? "page" : undefined}
-                dir={isRTL ? "rtl" : "ltr"}
-              >
-                {section.label[language]}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex items-center gap-1">
-          <LanguageToggle />
+        <div className={`flex items-center gap-1 ${isRTL ? "flex-row-reverse" : ""}`}>
+          <Link
+            to="/settings"
+            className="inline-flex items-center gap-2 rounded-full border border-secondary/40 px-4 py-2 text-sm font-semibold text-secondary hover:bg-secondary/10"
+          >
+            <Settings2 className="h-4 w-4" />
+            <span>{language === "ar" ? "الإعدادات" : "Settings"}</span>
+          </Link>
           <ThemeToggle />
           <PhoneLink
             number="07728881666"

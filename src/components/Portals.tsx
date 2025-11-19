@@ -34,7 +34,7 @@ const portals = [
 ];
 
 const extras = [
-  { icon: Trophy, label: { ar: "مسابقات رقمية", en: "Digital competitions" } },
+  { icon: Trophy, label: { ar: "مسابقات تفاعلية", en: "Interactive competitions" } },
   { icon: BarChart, label: { ar: "مؤشرات رفاهية", en: "Wellbeing metrics" } },
   { icon: Bell, label: { ar: "تنبيهات ذكية", en: "Smart nudges" } },
 ];
@@ -47,7 +47,7 @@ const Portals = () => {
       <div className="container mx-auto space-y-12 px-4">
         <div className="text-center" dir={isRTL ? "rtl" : "ltr"}>
           <p className="text-sm uppercase tracking-[0.3em] text-secondary">
-            {language === "ar" ? "بوابات رقمية" : "Digital portals"}
+            {language === "ar" ? "بوابات تفاعلية" : "Interactive portals"}
           </p>
           <h2 className="text-4xl font-bold">
             {language === "ar" ? "منصة موحدة للأهل والمعلمين" : "A unified workspace for families and educators"}
