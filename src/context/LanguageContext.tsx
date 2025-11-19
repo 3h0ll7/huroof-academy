@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useMemo, useState } from "react";
 
 export type SupportedLanguage = "ar" | "en";
 
@@ -19,9 +19,17 @@ const getInitialLanguage = (): SupportedLanguage => {
 };
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const [language, setLanguage] = useState<SupportedLanguage>(getInitialLanguage);
+  const [language, setLanguage] = useState<SupportedLanguage>(() => {
+    const initial = getInitialLanguage();
+    if (typeof document !== "undefined") {
+      const rtl = initial === "ar";
+      document.documentElement.lang = rtl ? "ar" : "en";
+      document.documentElement.dir = rtl ? "rtl" : "ltr";
+    }
+    return initial;
+  });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (typeof window === "undefined") return;
     const rtl = language === "ar";
     document.documentElement.lang = rtl ? "ar" : "en";

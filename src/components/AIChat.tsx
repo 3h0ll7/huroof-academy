@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2, Bot, User, Sparkles } from "lucide-react";
-import { streamChat, type Message } from "@/lib/aiChat";
+import { Send, Loader2, Bot, User, Sparkles, ImagePlus } from "lucide-react";
+import { streamChat, type Message, type Attachment } from "@/lib/aiChat";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -37,10 +37,12 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { language, isRTL } = useLanguage();
   const placeholder =
     language === "ar" ? "اكتب سؤالك أو اطلب نشاطًا إبداعيًا..." : "Ask anything about lessons or creativity...";
+  const uploadLabel = language === "ar" ? "ارفع صورة" : "Upload image";
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -48,11 +50,16 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
     }
   }, [messages]);
 
-  const sendMessage = async (prefill?: string) => {
-    const content = prefill ?? input;
-    if (!content.trim() || isLoading) return;
+  const sendMessage = async (prefill?: string, attachments?: Attachment[]) => {
+    if (isLoading) return;
+    const content = (prefill ?? input).trim();
+    if (!content && !attachments?.length) return;
 
-    const userMessage: Message = { role: "user", content: content.trim() };
+    const userMessage: Message = {
+      role: "user",
+      content: content || (language === "ar" ? "حلل هذه الصورة" : "Analyze this image"),
+      ...(attachments?.length ? { attachments } : {}),
+    };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -102,6 +109,63 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
   };
 
   const scrollHeight = variant === "compact" ? "h-[360px]" : "h-[520px]";
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = event.target;
+    const file = inputElement.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: language === "ar" ? "ملف غير مدعوم" : "Unsupported file",
+        description: language === "ar" ? "يُسمح فقط برفع صور بصيغة ‎JPG/PNG‎" : "Only JPG/PNG images are allowed.",
+        variant: "destructive",
+      });
+      inputElement.value = "";
+      return;
+    }
+
+    const maxSize = 8 * 1024 * 1024; // 8 MB
+    if (file.size > maxSize) {
+      toast({
+        title: language === "ar" ? "الصورة كبيرة جداً" : "Image too large",
+        description:
+          language === "ar"
+            ? "يرجى اختيار صورة أصغر من 8 ميغابايت"
+            : "Please choose an image smaller than 8 MB.",
+        variant: "destructive",
+      });
+      inputElement.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const prompt =
+        language === "ar"
+          ? "حلل هذه الصورة واذكر أبرز الملاحظات التعليمية"
+          : "Analyze this image and share the most relevant learning insights";
+      const attachment: Attachment = {
+        type: "image",
+        dataUrl,
+        mimeType: file.type,
+        name: file.name,
+      };
+      sendMessage(prompt, [attachment]);
+      inputElement.value = "";
+    };
+    reader.onerror = () => {
+      toast({
+        title: language === "ar" ? "تعذر قراءة الملف" : "File error",
+        description:
+          language === "ar" ? "حدث خطأ أثناء تحميل الصورة" : "An error occurred while uploading the image.",
+        variant: "destructive",
+      });
+      inputElement.value = "";
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <Card
@@ -174,7 +238,20 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
                   }`}
                   dir={isRTL ? "rtl" : "ltr"}
                 >
-                  {msg.content}
+                  {msg.content && <p>{msg.content}</p>}
+                  {msg.attachments?.map((attachment, index) =>
+                    attachment.type === "image" ? (
+                      <div
+                        key={`${attachment.name ?? "image"}-${index}`}
+                        className="mt-3 overflow-hidden rounded-xl border border-border/50 bg-background/60"
+                      >
+                        <img src={attachment.dataUrl} alt={attachment.name ?? "uploaded"} className="h-full w-full object-cover" />
+                        {attachment.name && (
+                          <p className="px-3 py-2 text-xs text-muted-foreground">{attachment.name}</p>
+                        )}
+                      </div>
+                    ) : null,
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -196,14 +273,31 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
         </ScrollArea>
 
         <div className="space-y-3 border-t p-4">
-          <div className="flex gap-2" dir={isRTL ? "rtl" : "ltr"}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg"
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+          <div className="flex flex-wrap gap-2" dir={isRTL ? "rtl" : "ltr"}>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex items-center gap-2 rounded-full border-dashed px-3 py-2 text-sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+            >
+              <ImagePlus className="h-4 w-4" />
+              {uploadLabel}
+            </Button>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={placeholder}
               disabled={isLoading}
-              className={`flex-1 ${isRTL ? "text-right" : "text-left"}`}
+              className={`min-w-0 flex-1 ${isRTL ? "text-right" : "text-left"}`}
               dir={isRTL ? "rtl" : "ltr"}
             />
             <Button
