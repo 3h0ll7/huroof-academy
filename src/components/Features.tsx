@@ -1,104 +1,123 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { Brain, FileEdit, FileText, BarChart3, Shield, Heart, Lightbulb } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
-const features = [
+const featureList = [
   {
     icon: Brain,
-    title: "المرشد الذكي",
-    titleEn: "AI Tutor",
-    description: "نظام تفاعلي شخصي يقدم حلولاً وشروحات للمسائل في أي وقت، مع القدرة على إجراء حوارات متعمقة وتكييف مستوى الأسئلة لتعزيز التعلم",
-    gradient: "from-primary to-navy-light"
+    title: { ar: "المرشد الذكي", en: "AI Mentor" },
+    description: {
+      ar: "محادثات شخصية تكيف مستوى الأسئلة وتقدم شروحات بالصوت والنص لتلبية احتياجات كل طالب.",
+      en: "Personalised conversations that adapt difficulty, deliver narrated explanations, and coach every learner.",
+    },
+    gradient: "from-primary to-navy-light",
   },
   {
     icon: FileEdit,
-    title: "محسن الكتابة",
-    titleEn: "Writing Improver",
-    description: "أداة لمراجعة النصوص المكتوبة واكتشاف الأخطاء الإملائية والنحوية، وتقديم اقتراحات لتحسين الأسلوب والتركيب اللغوي",
-    gradient: "from-secondary to-orange-light"
+    title: { ar: "محسن الكتابة", en: "Writing Coach" },
+    description: {
+      ar: "يدقق التعبير العربي والإنجليزي، يقترح بدائل قوية، ويعيد صياغة التقارير في ثوانٍ.",
+      en: "Polishes Arabic & English essays, suggests stronger vocabulary, and rewrites reports in seconds.",
+    },
+    gradient: "from-secondary to-orange-light",
   },
   {
     icon: FileText,
-    title: "ملخص النصوص",
-    titleEn: "Text Summarizer",
-    description: "تلخيص فصول كاملة من الكتب أو المقالات العلمية واستخراج النقاط الأساسية والمفاهيم الرئيسية لتعزيز تجربة المعلم",
-    gradient: "from-navy-deep to-primary"
+    title: { ar: "ملخص النصوص", en: "Smart Summaries" },
+    description: {
+      ar: "يلخص الفصول الطويلة إلى نقاط رئيسية مدعومة بمفاهيم STEM ومصادر جاهزة للطباعة.",
+      en: "Condenses long chapters into key ideas with STEM-ready prompts and printable sheets.",
+    },
+    gradient: "from-navy-deep to-primary",
   },
   {
     icon: BarChart3,
-    title: "مولد التقارير",
-    titleEn: "Report Generator",
-    description: "أتمتة عملية إنشاء تقارير أداء الطلاب الدورية وتقارير التواصل مع أولياء الأمور بشكل آلي ودقيق",
-    gradient: "from-orange-bright to-secondary"
+    title: { ar: "مولد التقارير", en: "Insightful Reports" },
+    description: {
+      ar: "لوحات تقدم لحظية لأولياء الأمور مع إشعارات ذكية ومقاييس رفاهية الطلاب.",
+      en: "Live progress dashboards for families with smart alerts and wellbeing metrics.",
+    },
+    gradient: "from-orange-bright to-secondary",
   },
   {
     icon: Shield,
-    title: "بيئة آمنة ومحفزة",
-    titleEn: "Safe Environment",
-    description: "مرافق حديثة ومجهزة مصممة خصيصاً لتوفير بيئة تعليمية آمنة ومريحة للطلاب في الروضة والابتدائية",
-    gradient: "from-primary via-navy-light to-secondary"
+    title: { ar: "بيئة آمنة", en: "Safe Campus" },
+    description: {
+      ar: "بوابات دخول ذكية، تتبع حضور لحظي، وخطط استجابة مدعومة بالذكاء الاصطناعي.",
+      en: "Smart entry gates, live attendance, and AI-assisted response playbooks.",
+    },
+    gradient: "from-primary via-navy-light to-secondary",
   },
   {
     icon: Heart,
-    title: "رعاية شاملة",
-    titleEn: "Comprehensive Care",
-    description: "نهتم بالجانب النفسي والاجتماعي للطلاب، نقدر تميزهم الشخصي ونعزز قيم التعاون بين الزملاء والمعلمين",
-    gradient: "from-secondary via-orange-light to-primary"
+    title: { ar: "رعاية شاملة", en: "Whole Care" },
+    description: {
+      ar: "برامج صحة نفسية، نوادي فنون، ودعم اجتماعي يقوده المرشد الافتراضي.",
+      en: "Mental wellbeing tracks, arts clubs, and social support guided by our virtual mentor.",
+    },
+    gradient: "from-secondary via-orange-light to-primary",
   },
   {
     icon: Lightbulb,
-    title: "تعليم مبتكر",
-    titleEn: "Innovative Education",
-    description: "نطبق أحدث المناهج التعليمية المدعومة بتقنيات الذكاء الاصطناعي لتحفيز التفكير الإبداعي والتفكير النقدي الفذ",
-    gradient: "from-navy-deep via-primary to-secondary"
-  }
+    title: { ar: "تعليم مبتكر", en: "Innovative Learning" },
+    description: {
+      ar: "منهج STEAM، طابعات ثلاثية الأبعاد، ومسابقات روبوتات تعزز التفكير الابتكاري.",
+      en: "STEAM curriculum, 3D printing labs, and robotics leagues fueling creative thinking.",
+    },
+    gradient: "from-navy-deep via-primary to-secondary",
+  },
 ];
 
 const Features = () => {
+  const { language, isRTL } = useLanguage();
+
   return (
-    <section className="py-20 bg-background">
-      <div className="container px-4 mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary" dir="rtl">
-            بناء قادة المستقبل، اليوم
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed" dir="rtl">
-            في مدارس حروف الأهلية، لا نكتفي بنقل المعرفة، بل نبتهشر رؤيتنا بتدريب حلم ممكن بتكنولوجيا متطورة وفكر متطور عالمياً
+    <section id="vision" className="bg-background py-20">
+      <div className="container mx-auto space-y-12 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          className="mx-auto max-w-3xl text-center"
+        >
+          <p className="text-sm uppercase tracking-[0.3em] text-secondary">
+            {language === "ar" ? "مضامين التعلم" : "Learning DNA"}
           </p>
-        </div>
+          <h2 className="text-3xl font-bold md:text-5xl" dir={isRTL ? "rtl" : "ltr"}>
+            {language === "ar" ? "نُهندس رحلة تعليمية متوازنة" : "We engineer a balanced learning journey"}
+          </h2>
+          <p className="mt-4 text-muted-foreground" dir={isRTL ? "rtl" : "ltr"}>
+            {language === "ar"
+              ? "من الروضة إلى الصفوف العليا، تتكامل التكنولوجيا مع الرعاية الإنسانية لتشكيل مهارات المستقبل."
+              : "From kindergarten to upper grades, technology and care intertwine to shape future-proof skills."}
+          </p>
+        </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <Card 
-              key={index} 
-              className="group relative overflow-hidden border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {featureList.map((feature, index) => (
+            <motion.article
+              key={feature.title.en}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ delay: index * 0.05, duration: 0.6 }}
+              className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-6 shadow-sm"
             >
-              {/* Gradient Background on Hover */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-              
-              <CardContent className="p-6 space-y-4 relative z-10">
-                {/* Icon */}
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <feature.icon className="w-8 h-8 text-white" />
+              <div className={`absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20 bg-gradient-to-br ${feature.gradient}`}></div>
+              <div className="relative flex flex-col gap-4" dir={isRTL ? "rtl" : "ltr"}>
+                <div className={`w-16 rounded-2xl bg-gradient-to-br ${feature.gradient} p-4 text-white shadow-lg`}>
+                  <feature.icon className="h-8 w-8" />
                 </div>
-
-                {/* Title */}
-                <div className="space-y-1">
-                  <h3 className="text-2xl font-bold text-primary" dir="rtl">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground font-semibold">
-                    {feature.titleEn}
-                  </p>
+                <div>
+                  <h3 className="text-2xl font-semibold">{feature.title[language]}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{feature.description[language]}</p>
                 </div>
-
-                {/* Description */}
-                <p className="text-foreground/80 leading-relaxed" dir="rtl">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{language === "ar" ? "جاهز للجيل زد" : "Gen-Z ready"}</span>
+                  <span>{language === "ar" ? "مُراقَب بالذكاء الاصطناعي" : "AI monitored"}</span>
+                </div>
+              </div>
+            </motion.article>
           ))}
         </div>
       </div>

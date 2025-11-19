@@ -1,85 +1,101 @@
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MessageCircle, Calendar, ArrowLeft } from "lucide-react";
+import { Phone, MessageCircle, Calendar, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/context/LanguageContext";
+import { PhoneLink } from "@/components/PhoneLink";
 
 const CTASection = () => {
-  return (
-    <section className="py-20 bg-gradient-to-br from-primary via-navy-deep to-navy-light relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-bright/10 rounded-full blur-3xl"></div>
+  const { language, isRTL } = useLanguage();
 
-      <div className="container px-4 mx-auto relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-12">
-          {/* Main CTA */}
-          <div className="space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight" dir="rtl">
-              انضم إلى مجتمع حروف التعليمي
-            </h2>
-            <p className="text-xl text-white/90 leading-relaxed max-w-2xl mx-auto" dir="rtl">
-              ابدأ رحلة تعليمية استثنائية مع تقنيات الذكاء الاصطناعي الأكثر تطوراً
+  const cards = [
+    {
+      icon: Phone,
+      label: { ar: "اتصل مباشرة", en: "Call us" },
+      details: "07728881666",
+    },
+    {
+      icon: MessageCircle,
+      label: { ar: "رسالة واتساب", en: "WhatsApp" },
+      details: "07833446666",
+    },
+    {
+      icon: Calendar,
+      label: { ar: "احجز جولة", en: "Book a tour" },
+      details: "07733334452",
+    },
+  ];
+
+  return (
+    <section id="cta" className="relative overflow-hidden bg-gradient-to-br from-primary via-navy-deep to-navy-light py-24 text-white">
+      <motion.div className="absolute inset-0 opacity-60" initial={{ opacity: 0 }} whileInView={{ opacity: 0.6 }}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.2),transparent_60%)]" />
+      </motion.div>
+      <div className="container relative z-10 mx-auto space-y-12 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          className="mx-auto max-w-3xl text-center"
+        >
+          <p className="text-sm uppercase tracking-[0.3em] text-secondary">
+            {language === "ar" ? "الخطوة التالية" : "Next step"}
+          </p>
+          <h2 className="text-4xl font-bold" dir={isRTL ? "rtl" : "ltr"}>
+            {language === "ar" ? "انضم إلى مجتمع حروف التعليمي" : "Join the Huroof learning community"}
+          </h2>
+          <p className="mt-4 text-white/80" dir={isRTL ? "rtl" : "ltr"}>
+            {language === "ar"
+              ? "احجز زيارة، تواصل مع فريق التسجيل، أو ابدأ تجربة مساعد حروف AI الآن"
+              : "Schedule a visit, connect with enrollment, or launch the Huroof AI experience now."}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {cards.map((card, index) => (
+            <motion.div key={card.details} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+              <Card className="border-white/20 bg-white/10 text-white">
+                <CardContent className="space-y-4 p-6" dir={isRTL ? "rtl" : "ltr"}>
+                  <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
+                    <card.icon className="h-7 w-7" />
+                  </div>
+                  <p className="text-lg font-semibold">{card.label[language]}</p>
+                  <PhoneLink number={card.details} label={card.details} className="bg-white/20 text-white" dir={isRTL ? "rtl" : "ltr"} />
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className={`flex flex-col gap-4 rounded-3xl bg-white/10 p-8 backdrop-blur-xl md:flex-row md:items-center ${isRTL ? "md:flex-row-reverse" : ""}`}>
+          <div className="flex-1 space-y-2" dir={isRTL ? "rtl" : "ltr"}>
+            <p className="flex items-center gap-2 text-sm font-semibold text-secondary">
+              <MapPin className="h-4 w-4" />
+              {language === "ar" ? "موقعنا" : "Our campus"}
+            </p>
+            <p className="text-2xl font-bold">{language === "ar" ? "النجف - حي عدن - مقابل شارع الزهور" : "Najaf, Aden District - Opposite Al-Zuhur St."}</p>
+            <p className="text-sm text-white/70">
+              {language === "ar" ? "موقف خاص، مسارات آمنة، ومرافق صديقة لذوي الهمم" : "Dedicated parking, safe corridors, and accessible facilities."}
             </p>
           </div>
-
-          {/* Contact Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              <CardContent className="p-6 text-center space-y-3">
-                <div className="w-14 h-14 mx-auto rounded-full bg-secondary/20 flex items-center justify-center">
-                  <Phone className="w-7 h-7 text-secondary" />
-                </div>
-                <h3 className="text-lg font-bold text-white" dir="rtl">اتصل بنا</h3>
-                <div className="space-y-1 text-white/80 text-sm" dir="rtl">
-                  <p>07728881666</p>
-                  <p>07833446666</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              <CardContent className="p-6 text-center space-y-3">
-                <div className="w-14 h-14 mx-auto rounded-full bg-secondary/20 flex items-center justify-center">
-                  <MessageCircle className="w-7 h-7 text-secondary" />
-                </div>
-                <h3 className="text-lg font-bold text-white" dir="rtl">واتساب</h3>
-                <p className="text-white/80 text-sm" dir="rtl">
-                  تواصل معنا مباشرة
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              <CardContent className="p-6 text-center space-y-3">
-                <div className="w-14 h-14 mx-auto rounded-full bg-secondary/20 flex items-center justify-center">
-                  <Calendar className="w-7 h-7 text-secondary" />
-                </div>
-                <h3 className="text-lg font-bold text-white" dir="rtl">احجز زيارة</h3>
-                <p className="text-white/80 text-sm" dir="rtl">
-                  الروضة: 07733334452
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Primary CTA Button */}
-          <div className="pt-8">
-            <Link to="/chat">
-              <Button 
-                size="lg" 
-                className="bg-secondary hover:bg-secondary/90 text-white font-bold text-xl px-12 py-7 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110"
-                dir="rtl"
-              >
-                <ArrowLeft className="ml-3 h-6 w-6" />
-                ابدأ مع حروف AI الآن
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link to="/chat" className="flex-1">
+              <Button size="lg" className="flex w-full items-center justify-center gap-2 rounded-full bg-secondary text-lg font-semibold">
+                {language === "ar" ? <ArrowLeft className="h-5 w-5" /> : <ArrowRight className="h-5 w-5" />}
+                {language === "ar" ? "ابدأ مع حروف AI" : "Start with Huroof AI"}
               </Button>
             </Link>
-          </div>
-
-          {/* Location */}
-          <div className="pt-8 text-white/70 space-y-2" dir="rtl">
-            <p className="text-lg font-semibold">📍 موقعنا</p>
-            <p className="text-base">النجف - حي عدن - مقابل شارع الزهور</p>
+            <Button
+              size="lg"
+              variant="outline"
+              className="flex-1 rounded-full border-white/40 bg-transparent text-white hover:bg-white/10"
+              asChild
+            >
+              <a href="https://maps.app.goo.gl/tkQsdJw2" target="_blank" rel="noreferrer">
+                {language === "ar" ? "استكشف الخريطة" : "Open map"}
+              </a>
+            </Button>
           </div>
         </div>
       </div>
