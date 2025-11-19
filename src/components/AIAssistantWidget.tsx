@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "@/lib/framer-motion-lite";
 import { MessageCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIChat from "@/components/AIChat";
@@ -19,14 +19,11 @@ export const AIAssistantWidget = () => {
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="w-[min(380px,90vw)]"
+          <div
+            style={{ width: 'min(380px, 90vw)', opacity: isOpen ? 1 : 0, transform: isOpen ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(20px)', transition: 'all 0.3s ease' }}
           >
             <AIChat variant="compact" />
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -41,9 +38,9 @@ export const AIAssistantWidget = () => {
       </Button>
       {!isOpen && (
         <motion.span
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-full bg-background/80 px-4 py-2 text-sm shadow-lg"
+          initial={{ opacity: 0, transform: 'translateY(10px)' }}
+          animate={{ opacity: 1, transform: 'translateY(0)' }}
+          style={{ borderRadius: '9999px', backgroundColor: 'hsl(var(--background) / 0.8)', padding: '0.5rem 1rem', fontSize: '0.875rem', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' }}
         >
           {language === "ar" ? "جرّب مساعدنا الذكي" : "Try our AI guide"}
         </motion.span>

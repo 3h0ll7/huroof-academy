@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "@/lib/framer-motion-lite";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Sparkles, Play } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -45,8 +45,8 @@ const Hero = () => {
     <motion.section
       id="hero"
       className="relative overflow-hidden bg-gradient-to-br from-navy-deep via-navy-light to-primary text-white"
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, transform: 'translateY(40px)' }}
+      animate={{ opacity: 1, transform: 'translateY(0)' }}
       transition={{ duration: 0.9 }}
     >
       <div className="absolute inset-0">
@@ -67,7 +67,7 @@ const Hero = () => {
             {language === "ar" ? "جيل المستقبل" : "Future generation"}
           </span>
           <div className="space-y-4 text-balance">
-            <motion.h1 className="text-4xl font-black leading-tight md:text-6xl" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}>
+            <motion.h1 style={{ fontSize: 'clamp(2.25rem, 5vw, 3.75rem)', fontWeight: 900, lineHeight: 1.2 }} initial={{ opacity: 0, transform: 'translateY(20px)' }} whileInView={{ opacity: 1, transform: 'translateY(0)' }}>
               {heroCopy.heading[language]}
             </motion.h1>
             <p className="text-2xl font-semibold text-secondary">
@@ -121,7 +121,7 @@ const Hero = () => {
                 alt="Huroof Logo"
                 loading="lazy"
                 decoding="async"
-                fetchpriority="high"
+                fetchPriority="high"
                 className="relative h-48 w-48 rounded-full border-4 border-white/20 object-cover shadow-2xl"
               />
             </div>

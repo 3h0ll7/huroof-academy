@@ -49,7 +49,7 @@ const mergeRefs = <T,>(...refs: (ForwardedRef<T> | undefined)[]) => {
   };
 };
 
-const createMotionComponent = <K extends keyof JSX.IntrinsicElements>(tag: K) => {
+const createMotionComponent = <K extends keyof HTMLElementTagNameMap>(tag: K) => {
   type Element = HTMLElementTagNameMap[K];
 
   const MotionComponent = forwardRef<Element, MotionProps<K>>(
@@ -125,19 +125,20 @@ const createMotionComponent = <K extends keyof JSX.IntrinsicElements>(tag: K) =>
 };
 
 export const motion = {
-  div: createMotionComponent<HTMLDivElement>("div"),
-  section: createMotionComponent<HTMLElement>("section"),
-  header: createMotionComponent<HTMLElement>("header"),
-  nav: createMotionComponent<HTMLElement>("nav"),
-  img: createMotionComponent<HTMLImageElement>("img"),
-  button: createMotionComponent<HTMLButtonElement>("button"),
-  span: createMotionComponent<HTMLSpanElement>("span"),
-  p: createMotionComponent<HTMLParagraphElement>("p"),
-  h1: createMotionComponent<HTMLHeadingElement>("h1"),
-  h2: createMotionComponent<HTMLHeadingElement>("h2"),
-  ul: createMotionComponent<HTMLUListElement>("ul"),
-  li: createMotionComponent<HTMLLIElement>("li"),
-  aside: createMotionComponent<HTMLElement>("aside"),
+  div: createMotionComponent("div"),
+  section: createMotionComponent("section"),
+  header: createMotionComponent("header"),
+  nav: createMotionComponent("nav"),
+  img: createMotionComponent("img"),
+  button: createMotionComponent("button"),
+  span: createMotionComponent("span"),
+  p: createMotionComponent("p"),
+  h1: createMotionComponent("h1"),
+  h2: createMotionComponent("h2"),
+  ul: createMotionComponent("ul"),
+  li: createMotionComponent("li"),
+  aside: createMotionComponent("aside"),
+  article: createMotionComponent("article"),
 };
 
 export const AnimatePresence = ({ children }: { children: ReactNode }) => <>{children}</>;

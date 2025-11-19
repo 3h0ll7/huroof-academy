@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/framer-motion-lite";
 import { Brain, FileEdit, FileText, BarChart3, Shield, Heart, Lightbulb } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -75,8 +75,8 @@ const Features = () => {
     <section id="vision" className="bg-background py-20">
       <div className="container mx-auto space-y-12 px-4">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, transform: 'translateY(30px)' }}
+          whileInView={{ opacity: 1, transform: 'translateY(0)' }}
           viewport={{ once: true, amount: 0.4 }}
           className="mx-auto max-w-3xl text-center"
         >
@@ -97,8 +97,8 @@ const Features = () => {
           {featureList.map((feature, index) => (
             <motion.article
               key={feature.title.en}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, transform: 'translateY(40px)' }}
+              whileInView={{ opacity: 1, transform: 'translateY(0)' }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ delay: index * 0.05, duration: 0.6 }}
               className="group relative overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-6 shadow-sm"
