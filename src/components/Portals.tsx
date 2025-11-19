@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/framer-motion-lite";
 import { Users, GraduationCap, Trophy, BarChart, Bell } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -63,8 +63,8 @@ const Portals = () => {
           {portals.map((portal, idx) => (
             <motion.div
               key={portal.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, transform: 'translateY(40px)' }}
+              whileInView={{ opacity: 1, transform: 'translateY(0)' }}
               transition={{ delay: idx * 0.1 }}
               viewport={{ once: true, amount: 0.3 }}
               className="rounded-3xl border border-border/80 bg-card/80 p-8 shadow-xl"
@@ -96,8 +96,8 @@ const Portals = () => {
           {extras.map((extra) => (
             <motion.div
               key={extra.label.en}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, transform: 'translateY(10px)' }}
+              whileInView={{ opacity: 1, transform: 'translateY(0)' }}
               className="flex items-center gap-2 rounded-full border border-dashed border-secondary/40 px-4 py-2 text-sm"
             >
               <extra.icon className="h-4 w-4 text-secondary" />

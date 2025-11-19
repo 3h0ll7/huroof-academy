@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/framer-motion-lite";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Phone, MessageCircle, Calendar, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
@@ -34,8 +34,8 @@ const CTASection = () => {
       </motion.div>
       <div className="container relative z-10 mx-auto space-y-12 px-4">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, transform: 'translateY(40px)' }}
+          whileInView={{ opacity: 1, transform: 'translateY(0)' }}
           viewport={{ once: true, amount: 0.4 }}
           className="mx-auto max-w-3xl text-center"
         >
@@ -54,7 +54,7 @@ const CTASection = () => {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {cards.map((card, index) => (
-            <motion.div key={card.details} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+            <motion.div key={card.details} initial={{ opacity: 0, transform: 'translateY(20px)' }} whileInView={{ opacity: 1, transform: 'translateY(0)' }} transition={{ delay: index * 0.1 }}>
               <Card className="border-white/20 bg-white/10 text-white">
                 <CardContent className="space-y-4 p-6" dir={isRTL ? "rtl" : "ltr"}>
                   <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">

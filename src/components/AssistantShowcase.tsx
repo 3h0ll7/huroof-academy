@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/framer-motion-lite";
 import { Bot, MessageSquare, CheckCircle2, Sparkles, NotebookPen } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -34,8 +34,8 @@ const AssistantShowcase = () => {
     <section id="assistant" className="py-20">
       <div className="container mx-auto grid gap-10 px-4 lg:grid-cols-2 lg:items-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, transform: 'translateY(30px)' }}
+          whileInView={{ opacity: 1, transform: 'translateY(0)' }}
           viewport={{ once: true, amount: 0.4 }}
           className="space-y-4"
           dir={isRTL ? "rtl" : "ltr"}
@@ -58,8 +58,8 @@ const AssistantShowcase = () => {
             {events.map((event, index) => (
               <motion.div
                 key={event.en}
-                initial={{ opacity: 0, x: isRTL ? 40 : -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, transform: isRTL ? 'translateX(40px)' : 'translateX(-40px)' }}
+                whileInView={{ opacity: 1, transform: 'translateX(0)' }}
                 transition={{ delay: index * 0.1 }}
                 className="flex items-center gap-3 rounded-2xl border border-dashed border-border/70 bg-card/70 p-4"
               >

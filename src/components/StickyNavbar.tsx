@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "@/lib/framer-motion-lite";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/context/LanguageContext";
@@ -16,8 +16,8 @@ export const StickyNavbar = ({ sections, activeSection }: StickyNavbarProps) => 
 
   return (
     <motion.header
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, transform: 'translateY(-20px)' }}
+      animate={{ opacity: 1, transform: 'translateY(0)' }}
       transition={{ duration: 0.6 }}
       className="sticky top-0 z-30 backdrop-blur-lg bg-background/80 border-b border-white/10"
     >

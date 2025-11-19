@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/framer-motion-lite";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -157,9 +157,9 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
             {messages.map((msg, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                initial={{ opacity: 0, transform: 'translateY(16px)' }}
+                animate={{ opacity: 1, transform: 'translateY(0)' }}
+                style={{ display: 'flex', gap: '0.75rem', flexDirection: msg.role === "user" ? 'row-reverse' : 'row' }}
               >
                 <div
                   className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
