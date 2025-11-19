@@ -1,16 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "@/lib/framer-motion-lite";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Loader2, Bot, User, Sparkles, ImagePlus } from "lucide-react";
+import { Send, Loader2, Bot, User, Sparkles, ImagePlus, FileUp } from "lucide-react";
 import { streamChat, type Message, type Attachment } from "@/lib/aiChat";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface AIChatProps {
   variant?: "full" | "compact";
+  initialMessages?: Message[];
+  onMessagesChange?: (messages: Message[]) => void;
+  enablePdfUpload?: boolean;
 }
 
 const quickReplies = [
@@ -32,17 +35,36 @@ const quickReplies = [
   },
 ];
 
-const AIChat = ({ variant = "full" }: AIChatProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const AIChat = ({ variant = "full", initialMessages, onMessagesChange, enablePdfUpload = false }: AIChatProps) => {
+  const [messages, setMessagesState] = useState<Message[]>(initialMessages ?? []);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { language, isRTL } = useLanguage();
   const placeholder =
     language === "ar" ? "اكتب سؤالك أو اطلب نشاطًا إبداعيًا..." : "Ask anything about lessons or creativity...";
   const uploadLabel = language === "ar" ? "ارفع صورة" : "Upload image";
+  const pdfLabel = language === "ar" ? "رفع PDF" : "Upload PDF";
+
+  useEffect(() => {
+    if (initialMessages !== undefined) {
+      setMessagesState(initialMessages);
+    }
+  }, [initialMessages]);
+
+  const setMessages = useCallback(
+    (value: Message[] | ((prev: Message[]) => Message[])) => {
+      setMessagesState((prev) => {
+        const next = typeof value === "function" ? value(prev) : value;
+        onMessagesChange?.(next);
+        return next;
+      });
+    },
+    [onMessagesChange],
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -67,14 +89,14 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
     let assistantContent = "";
     const updateAssistant = (chunk: string) => {
       assistantContent += chunk;
-      setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last?.role === "assistant") {
-          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.role === "assistant") {
+              return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
         }
-        return [...prev, { role: "assistant", content: assistantContent }];
-      });
-    };
+          return [...prev, { role: "assistant", content: assistantContent }];
+        });
+      };
 
     try {
       await streamChat({
@@ -167,6 +189,66 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
     reader.readAsDataURL(file);
   };
 
+  const handlePdfUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = event.target;
+    const file = inputElement.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast({
+        title: language === "ar" ? "صيغة غير مدعومة" : "Unsupported file",
+        description: language === "ar" ? "يُسمح فقط برفع ملفات PDF" : "Only PDF files are allowed",
+        variant: "destructive",
+      });
+      inputElement.value = "";
+      return;
+    }
+
+    const maxSize = 12 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({
+        title: language === "ar" ? "الملف كبير جداً" : "File is too large",
+        description: language === "ar" ? "يرجى اختيار ملف أصغر من 12 ميغابايت" : "Choose a file smaller than 12 MB",
+        variant: "destructive",
+      });
+      inputElement.value = "";
+      return;
+    }
+
+    try {
+      const rawText = await file.text();
+      const normalized = rawText.replace(/[^\x20-\x7E\u0600-\u06FF\n]/g, " ");
+      const excerpt = normalized.replace(/\s+/g, " ").slice(0, 600).trim();
+      const safeExcerpt =
+        excerpt ||
+        (language === "ar"
+          ? `اسم الملف: ${file.name}. قم بتقديم ملخص للمحتوى المتوقع.`
+          : `File name: ${file.name}. Provide an educated summary based on expected content.`);
+      const prompt =
+        language === "ar"
+          ? `حلل ملف PDF التالي وقدم أبرز النقاط:
+${safeExcerpt}`
+          : `Analyze the following PDF and summarize the key ideas:
+${safeExcerpt}`;
+      const attachment: Attachment = {
+        type: "document",
+        name: file.name,
+        mimeType: file.type,
+        excerpt: safeExcerpt,
+      };
+      await sendMessage(prompt, [attachment]);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: language === "ar" ? "تعذر قراءة الملف" : "File error",
+        description: language === "ar" ? "حدث خطأ أثناء تحليل ملف PDF" : "PDF parsing failed",
+        variant: "destructive",
+      });
+    } finally {
+      inputElement.value = "";
+    }
+  };
+
   return (
     <Card
       className="w-full shadow-2xl border border-primary/15 backdrop-blur supports-[backdrop-filter]:bg-background/80"
@@ -239,19 +321,33 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
                   dir={isRTL ? "rtl" : "ltr"}
                 >
                   {msg.content && <p>{msg.content}</p>}
-                  {msg.attachments?.map((attachment, index) =>
-                    attachment.type === "image" ? (
-                      <div
-                        key={`${attachment.name ?? "image"}-${index}`}
-                        className="mt-3 overflow-hidden rounded-xl border border-border/50 bg-background/60"
-                      >
-                        <img src={attachment.dataUrl} alt={attachment.name ?? "uploaded"} className="h-full w-full object-cover" />
-                        {attachment.name && (
-                          <p className="px-3 py-2 text-xs text-muted-foreground">{attachment.name}</p>
-                        )}
-                      </div>
-                    ) : null,
-                  )}
+                  {msg.attachments?.map((attachment, index) => {
+                    if (attachment.type === "image" && attachment.dataUrl) {
+                      return (
+                        <div
+                          key={`${attachment.name ?? "image"}-${index}`}
+                          className="mt-3 overflow-hidden rounded-xl border border-border/50 bg-background/60"
+                        >
+                          <img src={attachment.dataUrl} alt={attachment.name ?? "uploaded"} className="h-full w-full object-cover" />
+                          {attachment.name && (
+                            <p className="px-3 py-2 text-xs text-muted-foreground">{attachment.name}</p>
+                          )}
+                        </div>
+                      );
+                    }
+                    if (attachment.type === "document") {
+                      return (
+                        <div
+                          key={`${attachment.name ?? "document"}-${index}`}
+                          className="mt-3 rounded-xl border border-dashed border-border/60 bg-background/80 p-4 text-xs text-muted-foreground"
+                        >
+                          <p className="font-semibold text-foreground">{attachment.name ?? "PDF"}</p>
+                          {attachment.excerpt && <p className="mt-2 line-clamp-3">{attachment.excerpt}</p>}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
               </motion.div>
             ))}
@@ -280,6 +376,9 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
             className="hidden"
             onChange={handleImageUpload}
           />
+          {enablePdfUpload && (
+            <input ref={pdfInputRef} type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
+          )}
           <div className="flex flex-wrap gap-2" dir={isRTL ? "rtl" : "ltr"}>
             <Button
               type="button"
@@ -291,6 +390,18 @@ const AIChat = ({ variant = "full" }: AIChatProps) => {
               <ImagePlus className="h-4 w-4" />
               {uploadLabel}
             </Button>
+            {enablePdfUpload && (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex items-center gap-2 rounded-full border-dashed px-3 py-2 text-sm"
+                onClick={() => pdfInputRef.current?.click()}
+                disabled={isLoading}
+              >
+                <FileUp className="h-4 w-4" />
+                {pdfLabel}
+              </Button>
+            )}
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}

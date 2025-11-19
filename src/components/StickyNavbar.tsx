@@ -4,9 +4,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import { Phone, Settings2 } from "lucide-react";
 import { PhoneLink } from "@/components/PhoneLink";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 export const StickyNavbar = () => {
   const { language, isRTL } = useLanguage();
+  const { user, signOut } = useAuth();
 
   return (
     <motion.header
@@ -39,6 +42,32 @@ export const StickyNavbar = () => {
             <Settings2 className="h-4 w-4" />
             <span>{language === "ar" ? "الإعدادات" : "Settings"}</span>
           </Link>
+          {!user && (
+            <Link
+              to="/auth/sign-in"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/40 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
+            >
+              {language === "ar" ? "دخول" : "Login"}
+            </Link>
+          )}
+          {user && (
+            <>
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/40 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
+              >
+                {language === "ar" ? "لوحة التحكم" : "Dashboard"}
+              </Link>
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-destructive"
+                onClick={() => signOut()}
+              >
+                {language === "ar" ? "تسجيل خروج" : "Logout"}
+              </Button>
+            </>
+          )}
           <ThemeToggle />
           <PhoneLink
             number="07728881666"

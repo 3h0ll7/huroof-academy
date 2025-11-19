@@ -11,7 +11,7 @@ export const AIAssistantWidget = () => {
   const { language } = useLanguage();
   const location = useLocation();
 
-  if (location.pathname === "/chat") {
+  if (location.pathname === "/chat" || location.pathname.startsWith("/dashboard") || location.pathname.startsWith("/auth")) {
     return null;
   }
 
