@@ -5,9 +5,60 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2, Bot, User, Sparkles, ImagePlus, FileUp } from "lucide-react";
-import { streamChat, type Message, type Attachment } from "@/lib/aiChat";
+import { streamChat, type Message, type Attachment, type MathResultPayload } from "@/lib/aiChat";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
+
+const MathResultBubble = ({
+  result,
+  language,
+  isRTL,
+}: {
+  result: MathResultPayload;
+  language: string;
+  isRTL: boolean;
+}) => {
+  const [showSteps, setShowSteps] = useState(false);
+  const stepsLabel = language === "ar" ? "عرض الخطوات" : "Show steps";
+  const hideLabel = language === "ar" ? "إخفاء الخطوات" : "Hide steps";
+  const expressionLabel = language === "ar" ? "المسألة" : "Problem";
+  const resultLabel = language === "ar" ? "النتيجة الدقيقة" : "Exact result";
+
+  return (
+    <div className="space-y-3" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{resultLabel}</p>
+        <p className="text-2xl font-bold text-secondary">{result.formattedResult}</p>
+        <p className="text-xs text-muted-foreground">{expressionLabel}: {result.expression}</p>
+      </div>
+      {result.steps?.length ? (
+        <div className="rounded-2xl border border-dashed border-border/60 bg-background/70 p-3">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="mb-2 h-8 rounded-full bg-muted/60"
+            onClick={() => setShowSteps((prev) => !prev)}
+          >
+            {showSteps ? hideLabel : stepsLabel}
+          </Button>
+          {showSteps && (
+            <ol className="space-y-2 overflow-y-auto pr-1 text-sm text-muted-foreground" style={{ maxHeight: "14rem" }}>
+              {result.steps.map((step, index) => (
+                <li key={`${step.expression}-${index}`} className="rounded-xl bg-white/80 px-3 py-2 shadow">
+                  <p className="font-medium text-secondary">
+                    {language === "ar" ? `الخطوة ${index + 1}` : `Step ${index + 1}`}
+                  </p>
+                  <p>{step.description}</p>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 interface AIChatProps {
   variant?: "full" | "compact";
@@ -89,17 +140,17 @@ const AIChat = ({ variant = "full", initialMessages, onMessagesChange, enablePdf
     let assistantContent = "";
     const updateAssistant = (chunk: string) => {
       assistantContent += chunk;
-          setMessages((prev) => {
-            const last = prev[prev.length - 1];
-            if (last?.role === "assistant") {
-              return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant") {
+          return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantContent } : m));
         }
-          return [...prev, { role: "assistant", content: assistantContent }];
-        });
-      };
+        return [...prev, { role: "assistant", content: assistantContent }];
+      });
+    };
 
     try {
-      await streamChat({
+      const response = await streamChat({
         messages: [...messages, userMessage],
         onDelta: updateAssistant,
         onDone: () => setIsLoading(false),
@@ -112,6 +163,19 @@ const AIChat = ({ variant = "full", initialMessages, onMessagesChange, enablePdf
           setIsLoading(false);
         },
       });
+
+      if (response?.mathResult) {
+        const concise =
+          language === "ar"
+            ? `النتيجة الدقيقة: ${response.mathResult.formattedResult}`
+            : `Exact result: ${response.mathResult.formattedResult}`;
+        setMessages((prev) => [...prev, { role: "assistant", content: concise, mathResult: response.mathResult }]);
+        return;
+      }
+
+      if (response?.clarification) {
+        setMessages((prev) => [...prev, { role: "assistant", content: response.clarification }]);
+      }
     } catch (error) {
       console.error("Send error:", error);
       toast({
@@ -315,12 +379,13 @@ ${safeExcerpt}`;
                   {msg.role === "user" ? <User className="h-5 w-5 text-white" /> : <Bot className="h-5 w-5 text-white" />}
                 </div>
                 <div
-                  className={`flex-1 rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
+                  className={`flex-1 rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm space-y-3 ${
                     msg.role === "user" ? "bg-secondary/10" : "bg-muted"
                   }`}
                   dir={isRTL ? "rtl" : "ltr"}
                 >
-                  {msg.content && <p>{msg.content}</p>}
+                  {msg.content && <p className="whitespace-pre-wrap break-words">{msg.content}</p>}
+                  {msg.mathResult && <MathResultBubble result={msg.mathResult} language={language} isRTL={isRTL} />}
                   {msg.attachments?.map((attachment, index) => {
                     if (attachment.type === "image" && attachment.dataUrl) {
                       return (
