@@ -1,6 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { calculateStepByStep } from "./mathEngine.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,23 +9,6 @@ const corsHeaders = {
 type ChatMessage = {
   role: string;
   content?: string;
-};
-
-const isMathLikeQuestion = (content: string) => {
-  const normalized = content.replace(/،/g, ",").trim();
-  const numberLike = /\d/.test(normalized);
-  const operatorLike = /[+\-*/%^]/.test(normalized);
-  const keywords = /(مسألة|حل|خطوات|ناتج|احسب|اجمع|اطرح|اضرب|اقسم|كم)/i;
-  return Boolean((numberLike && operatorLike) || keywords.test(normalized));
-};
-
-const extractMathExpression = (content: string) => {
-  const expressionMatches = content.match(/[0-9+\-*/%^().\s]+/g);
-  if (expressionMatches && expressionMatches.length > 0) {
-    const joined = expressionMatches.join(" ").replace(/\s+/g, " ").trim();
-    if (joined) return joined;
-  }
-  return content;
 };
 
 const respondWithJson = (payload: Record<string, unknown>, status = 200) =>
@@ -54,17 +36,6 @@ serve(async (req) => {
 
     console.log("Received chat request with", messages.length, "messages");
 
-    const latestUserMessage: ChatMessage | undefined = [...messages].reverse().find((msg: ChatMessage) => msg.role === "user");
-
-    if (latestUserMessage?.content && isMathLikeQuestion(latestUserMessage.content)) {
-      console.log("Math query detected. Using Math Engine for:", latestUserMessage.content);
-      const mathResult = calculateStepByStep({ expression: extractMathExpression(latestUserMessage.content) });
-      if (mathResult) {
-        return respondWithJson({ type: "math-result", ...mathResult });
-      }
-      return respondWithJson({ type: "math-clarification", message: "المسألة غير واضحة" });
-    }
-
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -77,11 +48,13 @@ serve(async (req) => {
           {
             role: "system",
             content:
-              "عند حل المسائل الرياضية يجب الالتزام بالقواعد التالية: – لا تستنتج أرقام غير موجودة في السؤال.\n" +
-              "– لا تنشئ خطوات غير ضرورية.\n" +
-              "– إذا لم تكن المعطيات كافية، قل: (المسألة غير واضحة).\n" +
-              "– استخدم فقط المعلومات التي ذكرها الطالب.\n" +
-              "– العمليات الحسابية يتم تنفيذها بواسطة Math Engine وليس بواسطة النموذج."
+              "أنت مساعد تعليمي ذكي لمدارس حروف الأهلية. مهمتك مساعدة الطلاب في فهم المواد الدراسية.\n" +
+              "عند حل المسائل الرياضية:\n" +
+              "– اشرح الخطوات بوضوح وبالتفصيل\n" +
+              "– استخدم الأمثلة عند الحاجة\n" +
+              "– تأكد من دقة الحسابات\n" +
+              "– اشرح المفاهيم الرياضية بطريقة مبسطة\n" +
+              "– إذا كان السؤال غير واضح، اطلب توضيحاً"
           },
           ...messages,
         ],
