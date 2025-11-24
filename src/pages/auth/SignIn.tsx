@@ -12,20 +12,27 @@ import { Loader2, LogIn, Mail } from "lucide-react";
 
 const SignIn = () => {
   const { language, isRTL } = useLanguage();
-  const { signInWithGoogle, signInWithEmail } = useAuth();
+  const { signInWithEmail, signInWithPhone } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleEmailLogin = async (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!email || !password) return;
+    if (loginMethod === "email" && (!email || !password)) return;
+    if (loginMethod === "phone" && (!phone || !password)) return;
+    
     setIsLoading(true);
-    const { error } = await signInWithEmail(email, password);
+    const { error } = loginMethod === "email" 
+      ? await signInWithEmail(email, password)
+      : await signInWithPhone(phone, password);
     setIsLoading(false);
+    
     if (error) {
       toast({
         title: language === "ar" ? "تعذر تسجيل الدخول" : "Sign-in failed",
@@ -36,19 +43,6 @@ const SignIn = () => {
     }
     const redirectTo = (location.state as { from?: string } | null)?.from ?? "/dashboard";
     navigate(redirectTo, { replace: true });
-  };
-
-  const handleGoogle = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: language === "ar" ? "خطأ في Google" : "Google error",
-        description: language === "ar" ? "تعذر إتمام تسجيل الدخول عبر Google" : "Google sign-in failed",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -64,30 +58,51 @@ const SignIn = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Button type="button" variant="outline" className="w-full gap-2" onClick={handleGoogle}>
-              <LogIn className="h-4 w-4" />
-              {language === "ar" ? "متابعة باستخدام Google" : "Continue with Google"}
-            </Button>
-
-            <div className="relative">
-              <Separator />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-sm text-muted-foreground">
-                {language === "ar" ? "أو" : "or"}
-              </span>
+            <div className="flex gap-2 rounded-lg bg-muted p-1">
+              <Button
+                type="button"
+                variant={loginMethod === "email" ? "default" : "ghost"}
+                className="flex-1"
+                onClick={() => setLoginMethod("email")}
+              >
+                {language === "ar" ? "البريد الإلكتروني" : "Email"}
+              </Button>
+              <Button
+                type="button"
+                variant={loginMethod === "phone" ? "default" : "ghost"}
+                className="flex-1"
+                onClick={() => setLoginMethod("phone")}
+              >
+                {language === "ar" ? "رقم الهاتف" : "Phone"}
+              </Button>
             </div>
 
-            <form className="space-y-4" onSubmit={handleEmailLogin}>
-              <div className="space-y-2 text-left">
-                <Label htmlFor="email">{language === "ar" ? "البريد الإلكتروني" : "Email"}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder={language === "ar" ? "example@huroof.com" : "example@huroof.com"}
-                  required
-                />
-              </div>
+            <form className="space-y-4" onSubmit={handleLogin}>
+              {loginMethod === "email" ? (
+                <div className="space-y-2 text-left">
+                  <Label htmlFor="email">{language === "ar" ? "البريد الإلكتروني" : "Email"}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    placeholder={language === "ar" ? "example@huroof.com" : "example@huroof.com"}
+                    required
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2 text-left">
+                  <Label htmlFor="phone">{language === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    placeholder={language === "ar" ? "+966xxxxxxxxx" : "+966xxxxxxxxx"}
+                    required
+                  />
+                </div>
+              )}
               <div className="space-y-2 text-left">
                 <Label htmlFor="password">{language === "ar" ? "كلمة المرور" : "Password"}</Label>
                 <Input
@@ -99,8 +114,8 @@ const SignIn = () => {
                 />
               </div>
               <Button type="submit" className="w-full gap-2" disabled={isLoading}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                {language === "ar" ? "تسجيل الدخول بالبريد" : "Sign in with email"}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+                {language === "ar" ? "تسجيل الدخول" : "Sign in"}
               </Button>
             </form>
 

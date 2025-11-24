@@ -10,6 +10,8 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signUpWithEmail: (email: string, password: string) => Promise<{ error?: string }>;
+  signInWithPhone: (phone: string, password: string) => Promise<{ error?: string }>;
+  signUpWithPhone: (phone: string, password: string) => Promise<{ error?: string }>;
   resetPassword: (email: string) => Promise<{ error?: string }>;
 }
 
@@ -88,8 +90,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: error?.message };
   };
 
+  const signInWithPhone = async (phone: string, password: string) => {
+    if (!supabase) return { error: "Supabase is not configured" };
+    const { error } = await supabase.auth.signInWithPassword({ phone, password });
+    return { error: error?.message };
+  };
+
+  const signUpWithPhone = async (phone: string, password: string) => {
+    if (!supabase) return { error: "Supabase is not configured" };
+    const { error } = await supabase.auth.signUp({ phone, password, options: { channel: 'sms' } });
+    return { error: error?.message };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, resetPassword }}>
+    <AuthContext.Provider value={{ user, session, loading, signInWithGoogle, signOut, signInWithEmail, signUpWithEmail, signInWithPhone, signUpWithPhone, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );
