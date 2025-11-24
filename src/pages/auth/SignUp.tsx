@@ -12,14 +12,16 @@ import { Loader2, ShieldCheck } from "lucide-react";
 
 const SignUp = () => {
   const { language, isRTL } = useLanguage();
-  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const { signUpWithEmail, signUpWithPhone } = useAuth();
   const { toast } = useToast();
+  const [signupMethod, setSignupMethod] = useState<"email" | "phone">("email");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleEmailSignup = async (event: React.FormEvent) => {
+  const handleSignup = async (event: React.FormEvent) => {
     event.preventDefault();
     if (password !== confirmPassword) {
       toast({
@@ -28,30 +30,23 @@ const SignUp = () => {
       });
       return;
     }
+    
     setIsLoading(true);
-    const { error } = await signUpWithEmail(email, password);
+    const { error } = signupMethod === "email"
+      ? await signUpWithEmail(email, password)
+      : await signUpWithPhone(phone, password);
     setIsLoading(false);
+    
     if (error) {
       toast({ title: language === "ar" ? "تعذر إنشاء الحساب" : "Sign-up failed", description: error, variant: "destructive" });
       return;
     }
     toast({
       title: language === "ar" ? "تم إنشاء الحساب" : "Account created",
-      description: language === "ar" ? "تحقق من بريدك الإلكتروني لتفعيل الحساب" : "Check your inbox to confirm your account",
+      description: signupMethod === "email" 
+        ? (language === "ar" ? "تحقق من بريدك الإلكتروني لتفعيل الحساب" : "Check your inbox to confirm your account")
+        : (language === "ar" ? "تحقق من رسائلك النصية لتفعيل الحساب" : "Check your SMS to confirm your account"),
     });
-  };
-
-  const handleGoogleSignUp = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: language === "ar" ? "تعذر الاتصال بـ Google" : "Google error",
-        description: language === "ar" ? "حدثت مشكلة أثناء استخدام Google" : "Google sign-up failed",
-        variant: "destructive",
-      });
-    }
   };
 
   return (
@@ -67,23 +62,44 @@ const SignUp = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <Button type="button" variant="outline" className="w-full gap-2" onClick={handleGoogleSignUp}>
-              <ShieldCheck className="h-4 w-4" />
-              {language === "ar" ? "التسجيل باستخدام Google" : "Sign up with Google"}
-            </Button>
-
-            <div className="relative">
-              <Separator />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-3 text-sm text-muted-foreground">
-                {language === "ar" ? "أو" : "or"}
-              </span>
+            <div className="flex gap-2 rounded-lg bg-muted p-1">
+              <Button
+                type="button"
+                variant={signupMethod === "email" ? "default" : "ghost"}
+                className="flex-1"
+                onClick={() => setSignupMethod("email")}
+              >
+                {language === "ar" ? "البريد الإلكتروني" : "Email"}
+              </Button>
+              <Button
+                type="button"
+                variant={signupMethod === "phone" ? "default" : "ghost"}
+                className="flex-1"
+                onClick={() => setSignupMethod("phone")}
+              >
+                {language === "ar" ? "رقم الهاتف" : "Phone"}
+              </Button>
             </div>
 
-            <form className="space-y-4" onSubmit={handleEmailSignup}>
-              <div className="space-y-2 text-left">
-                <Label htmlFor="email">{language === "ar" ? "البريد الإلكتروني" : "Email"}</Label>
-                <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
-              </div>
+            <form className="space-y-4" onSubmit={handleSignup}>
+              {signupMethod === "email" ? (
+                <div className="space-y-2 text-left">
+                  <Label htmlFor="email">{language === "ar" ? "البريد الإلكتروني" : "Email"}</Label>
+                  <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+                </div>
+              ) : (
+                <div className="space-y-2 text-left">
+                  <Label htmlFor="phone">{language === "ar" ? "رقم الهاتف" : "Phone Number"}</Label>
+                  <Input 
+                    id="phone" 
+                    type="tel" 
+                    value={phone} 
+                    onChange={(event) => setPhone(event.target.value)} 
+                    placeholder={language === "ar" ? "+966xxxxxxxxx" : "+966xxxxxxxxx"}
+                    required 
+                  />
+                </div>
+              )}
               <div className="space-y-2 text-left">
                 <Label htmlFor="password">{language === "ar" ? "كلمة المرور" : "Password"}</Label>
                 <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
